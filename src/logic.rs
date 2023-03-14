@@ -23,7 +23,6 @@ pub fn to_binary(dec: &str) -> String {
     let mut ret = "Output: ".to_owned();
     ret.push_str(bin.chars().rev().collect::<String>().as_str());
     ret
-    //"Output: ".to_owned().push_str(bin.chars().rev().collect::<String>().as_str())
 }
 
 pub fn to_decimal(bin: &str) -> String {

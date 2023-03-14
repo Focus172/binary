@@ -17,16 +17,9 @@ impl Renderer {
     }
 
     pub fn inititial_message(&mut self) -> Result<(), Error>  {
-        write!(self.screen, "{}", termion::cursor::Goto(1, 1))?;
-            write!(self.screen, "{}{}", color::Bg(color::Reset), termion::clear::All)?;
-            write!(self.screen, "{}Use (j,k) to move and (h,l) to navigate in and out of menus, press 'q' at anytime to quit.", color::Bg(color::Reset))?;
-
-            write!(self.screen, "{}", termion::cursor::Goto(1, 2))?;
-            write!(self.screen, "{}1) Binary to decimal", color::Bg(color::Red))?;
-            write!(self.screen, "{}", termion::cursor::Goto(1, 3))?;
-            write!(self.screen, "{}2) Decimal to binary", color::Bg(color::Reset))?;
-            self.screen.flush()?;
-            Ok(())
+        render_select_screen(&mut self.screen, 1)?;
+        self.screen.flush()?;
+        Ok(())        
     }
 
     pub fn render(&mut self, state: &State) -> Result<(), Error> {
@@ -64,23 +57,9 @@ impl Renderer {
             self.screen.flush()?;
             
         } else {
-            write!(self.screen, "{}", termion::cursor::Goto(1, 1))?;
-            write!(self.screen, "{}{}", color::Bg(color::Reset), termion::clear::All)?;
-            write!(self.screen, "{}Use (j,k) to move and (h,l) to navigate in and out of menus, press 'q' at anytime to quit.", color::Bg(color::Reset))?;
-
             match state.selected_option.state {
-                OptionState::DecimalToBinary => {
-                    write!(self.screen, "{}", termion::cursor::Goto(1, 2))?;
-                    write!(self.screen, "{}1) Binary to decimal", color::Bg(color::Reset))?;
-                    write!(self.screen, "{}", termion::cursor::Goto(1, 3))?;
-                    write!(self.screen, "{}2) Decimal to binary", color::Bg(color::Red))?;
-                },
-                OptionState::BinaryToDecimal => {
-                    write!(self.screen, "{}", termion::cursor::Goto(1, 2))?;
-                    write!(self.screen, "{}1) Binary to decimal", color::Bg(color::Red))?;
-                    write!(self.screen, "{}", termion::cursor::Goto(1, 3))?;
-                    write!(self.screen, "{}2) Decimal to binary", color::Bg(color::Reset))?;
-                }
+                OptionState::DecimalToBinary => { render_select_screen(&mut self.screen, 1)?; },
+                OptionState::BinaryToDecimal => { render_select_screen(&mut self.screen,2)?; },
             }
             self.screen.flush()?;
         }
@@ -89,22 +68,25 @@ impl Renderer {
     }
 }
 
-/*
-print!("{}", DANCING_KIRBY[count % 8]);
-        //print!("\n{} >>> {}", count, count+1);
-        std::io::stdout().flush().unwrap();
-        t.carriage_return().unwrap(); // get rid of standard newline after flush
+fn render_select_screen(screen: &mut RawTerminal<AlternateScreen<Stdout>>, selected_number: i8) -> Result<(), Error> {
+    write!(screen, "{}{}{}Use (j,k) to move and (h,l) to navigate in and out of menus, press 'q' at anytime to quit.",
+        termion::cursor::Goto(1, 1),
+        color::Bg(color::Reset),
+        termion::clear::All)?;
 
+    if selected_number == 1 {
+        write!(screen, "{}", termion::cursor::Goto(1, 2))?;
+        write!(screen, "{}1) Binary to decimal", color::Bg(color::Red))?;
+        write!(screen, "{}", termion::cursor::Goto(1, 3))?;
+        write!(screen, "{}2) Decimal to binary", color::Bg(color::Reset))?;
+    } else if selected_number == 2 {
+        write!(screen, "{}", termion::cursor::Goto(1, 2))?;
+        write!(screen, "{}1) Binary to decimal", color::Bg(color::Reset))?;
+        write!(screen, "{}", termion::cursor::Goto(1, 3))?;
+        write!(screen, "{}2) Decimal to binary", color::Bg(color::Red))?;
+    } else {
+        panic!();
+    }
 
-        thread::sleep(Duration::from_millis(200));
-        t.delete_line().unwrap();
-        
-        if count > 100 {
-            break;
-        }
-
-        let x = std::io::stdout();
-        x.lock().flush().unwrap();
-
-        count += 1;
-        */
+    Ok(())
+}
